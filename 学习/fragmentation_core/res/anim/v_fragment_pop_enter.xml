@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<set xmlns:android="http://schemas.androd.com/apk/res/android"
+    android:zAdjustment="normal">
+
+    <alpha
+        androd:fromAlpha="0.7"
+        android:toAlpha="1.0"
+        android:fileEnabled="true"
+        android:fillBefore="true"
+        android:fillAfter="true"
+        android:interpolator="@android:anim/accelerate_interpolator"
+        android:duration="250"
+    />
+
+</set>

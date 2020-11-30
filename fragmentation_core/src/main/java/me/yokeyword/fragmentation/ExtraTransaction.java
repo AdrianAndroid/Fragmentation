@@ -137,7 +137,10 @@ public abstract class ExtraTransaction {
         private boolean mFromActivity;
         private TransactionRecord mRecord;
 
-        ExtraTransactionImpl(FragmentActivity activity, T supportF, TransactionDelegate transactionDelegate, boolean fromActivity) {
+        ExtraTransactionImpl(FragmentActivity activity
+            , T supportF
+            , TransactionDelegate transactionDelegate
+            , boolean fromActivity) {
             this.mActivity = activity;
             this.mSupportF = supportF;
             this.mFragment = (Fragment) supportF;
@@ -247,7 +250,8 @@ public abstract class ExtraTransaction {
         }
 
         @Override
-        public void startDontHideSelf(ISupportFragment toFragment, @ISupportFragment.LaunchMode int launchMode) {
+        public void startDontHideSelf(ISupportFragment toFragment
+            , @ISupportFragment.LaunchMode int launchMode) {
             toFragment.getSupportDelegate().mTransactionRecord = mRecord;
             mTransactionDelegate.dispatchStartTransaction(getFragmentManager(), mSupportF, toFragment, 0, launchMode, TransactionDelegate.TYPE_ADD_WITHOUT_HIDE);
         }

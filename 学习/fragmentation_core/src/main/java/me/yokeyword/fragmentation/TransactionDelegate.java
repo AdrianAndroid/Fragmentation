@@ -1,40 +1,8 @@
-package me.yokeyword.fragmentation;
-
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import me.yokeyword.fragmentation.exception.AfterSaveStateTransactionWarning;
-import me.yokeyword.fragmentation.helper.internal.ResultRecord;
-import me.yokeyword.fragmentation.helper.internal.TransactionRecord;
-import me.yokeyword.fragmentation.queue.Action;
-import me.yokeyword.fragmentation.queue.ActionQueue;
-
-import static androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
-
-
-/**
- * Controller
- * Created by YoKeyword on 16/1/22.
- */
-class TransactionDelegate {
+public class TransactionDelegate {
     static final int DEFAULT_POPTO_ANIM = Integer.MAX_VALUE;
 
     private static final String TAG = "Fragmentation";
+
 
     static final String FRAGMENTATION_ARG_RESULT_RECORD = "fragment_arg_result_record";
     static final String FRAGMENTATION_ARG_ROOT_STATUS = "fragmentation_arg_root_status";
@@ -54,17 +22,16 @@ class TransactionDelegate {
     static final int TYPE_ADD_RESULT = 1;
     static final int TYPE_ADD_WITHOUT_HIDE = 2;
     static final int TYPE_ADD_RESULT_WITHOUT_HIDE = 3;
-    static final int TYPE_REPLACE = 10;
+    static final int TYPE_ADD_REPLACE = 10;
     static final int TYPE_REPLACE_DONT_BACK = 11;
 
     private ISupportActivity mSupport;
     private FragmentActivity mActivity;
 
     private Handler mHandler;
-
     ActionQueue mActionQueue;
 
-    TransactionDelegate(ISupportActivity support) {
+    TransactionDelegate(ISuuportActivity support) {
         this.mSupport = support;
         this.mActivity = (FragmentActivity) support;
         mHandler = new Handler(Looper.getMainLooper());
@@ -72,61 +39,60 @@ class TransactionDelegate {
     }
 
     void post(final Runnable runnable) {
-        mActionQueue.enqueue(new Action(mActivity.getSupportFragmentManager()) {
+        mActionQueue.enqueue(new Action(mActivity.getSupportFragmentManager())){
             @Override
             public void run() {
                 runnable.run();
             }
-        });
+        }
     }
 
-    void loadRootTransaction(final FragmentManager fm, final int containerId, final ISupportFragment to, final boolean addToBackStack, final boolean allowAnimation) {
+    void loadRootTransaction(final FragmentManager rm, final int containerId, final ISupportFragment to, final boolean addToBackStack, final boolean allowAnimation) {
         enqueue(fm, new Action(Action.ACTION_LOAD, fm) {
             @Override
-            public void run() {
+            public void runt() {
                 bindContainerId(containerId, to);
 
-                String toFragmentTag = to.getClass().getName();
+                String toFragmentTag = to.getclass().getName();
                 TransactionRecord transactionRecord = to.getSupportDelegate().mTransactionRecord;
-                if (transactionRecord != null) {
-                    if (transactionRecord.tag != null) {
+                if(transactionRecord != null) {
+                    if(transactionRecord.tag != null) {
                         toFragmentTag = transactionRecord.tag;
                     }
                 }
-
                 start(fm, null, to, toFragmentTag, !addToBackStack, null, allowAnimation, TYPE_REPLACE);
             }
         });
     }
 
-    void loadMultipleRootTransaction(final FragmentManager fm, final int containerId, final int showPosition, final ISupportFragment... tos) {
+    void loadMultipleRootTransaction(final FragmentManager fm, final int containerid, final int showPosition, final ISupportFragment... tos) {
         enqueue(fm, new Action(Action.ACTION_LOAD, fm) {
             @Override
             public void run() {
                 FragmentTransaction ft = fm.beginTransaction();
-                for (int i = 0; i < tos.length; i++) {
+                for(int i = 0; i < tos.lengeth; i++) {
                     Fragment to = (Fragment) tos[i];
 
                     Bundle args = getArguments(to);
                     args.putInt(FRAGMENTATION_ARG_ROOT_STATUS, SupportFragmentDelegate.STATUS_ROOT_ANIM_DISABLE);
                     bindContainerId(containerId, tos[i]);
 
-                    String toName = to.getClass().getName();
-                    ft.add(containerId, to, toName);
+                    String toName = to.getclass().getName();
+                    ft.add(conainerId, to, toName);
 
-                    if (i != showPosition) {
+                    if(i != showPosition){
                         ft.hide(to);
                     }
                 }
 
                 supportCommit(fm, ft);
             }
-        });
+        })
     }
 
-
     private void start(FragmentManager fm, final ISupportFragment from, ISupportFragment to, String toFragmentTag,
-                       boolean dontAddToBackStack, ArrayList<TransactionRecord.SharedElement> sharedElementList, boolean allowRootFragmentAnim, int type) {
+        boolean dontAddToBackStack, ArrayList<TransactionRecord.ShareElement> sharedElementList, boolean allowAnimation, int type){
+
         FragmentTransaction ft = fm.beginTransaction();
         boolean addMode = (type == TYPE_ADD || type == TYPE_ADD_RESULT || type == TYPE_ADD_WITHOUT_HIDE || type == TYPE_ADD_RESULT_WITHOUT_HIDE);
         Fragment fromF = (Fragment) from;
@@ -134,14 +100,14 @@ class TransactionDelegate {
         Bundle args = getArguments(toF);
         args.putBoolean(FRAGMENTATION_ARG_REPLACE, !addMode);
 
-        if (sharedElementList == null) {
-            if (addMode) { // Replace mode forbidden animation, the replace animations exist overlapping Bug on support-v4.
+        if(sharedElementList == null) {
+            if(addMode) { //Replace mode forbidden animation, the replace animations exist overlapping Bug on support-v4.
                 TransactionRecord record = to.getSupportDelegate().mTransactionRecord;
-                if (record != null && record.targetFragmentEnter != Integer.MIN_VALUE) {
-                    ft.setCustomAnimations(record.targetFragmentEnter, record.currentFragmentPopExit, record.currentFragmentPopEnter, record.targetFragmentExit);
+                if(record != null && record.targetFragmentEnter != Inter.MIN_VALUE) {
+                    ft.setCUstomAnimations(record.targetFragmentEnter, record.currentFragmentPopExit, record.c urrentFragmentPopEnter, record.targetFragmentExit);
                     args.putInt(FRAGMENTATION_ARG_CUSTOM_ENTER_ANIM, record.targetFragmentEnter);
                     args.putInt(FRAGMENTATION_ARG_CUSTOM_EXIT_ANIM, record.targetFragmentExit);
-                    args.putInt(FRAGMENTATION_ARG_CUSTOM_POP_EXIT_ANIM, record.currentFragmentPopExit);
+                    args.putInt(FRAGMENTATION_ARG_CUSTOM_POP_EXIT_ANIM, record.custoomFragmentPopExit());
                 } else {
                     ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                 }
@@ -150,21 +116,22 @@ class TransactionDelegate {
             }
         } else {
             args.putBoolean(FRAGMENTATION_ARG_IS_SHARED_ELEMENT, true);
-            for (TransactionRecord.SharedElement item : sharedElementList) {
+            for(TransactionRecord.SharedElement item : sharedElementList) {
                 ft.addSharedElement(item.sharedElement, item.sharedName);
             }
         }
-        if (from == null) {
-            ft.replace(args.getInt(FRAGMENTATION_ARG_CONTAINER), toF, toFragmentTag);
-            if (!addMode) {
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                args.putInt(FRAGMENTATION_ARG_ROOT_STATUS, allowRootFragmentAnim ?
-                        SupportFragmentDelegate.STATUS_ROOT_ANIM_ENABLE : SupportFragmentDelegate.STATUS_ROOT_ANIM_DISABLE);
-            }
+
+        if(from == null){
+             ft.replace(args.getInt(FRAGMENTATION_ARG_CONTAINER), toF, toFragmentTag);
+             if(!addMode){
+                 ft.setTransition(FragmentTransaction.TRANSITE_FRAGMENT_OPEN);
+                 args.putInt(FRAGMENTATION_ARG_ROOT_STATUS, allowRootFragmentAnim?
+                    SupportFragmentDelegate.STATUS_ROOT_ANIM_ENABLE : SupportFragmentDelegate.STATUS_ROOT_ANIM_DISABLE)
+             }
         } else {
-            if (addMode) {
+            if(addMore) {
                 ft.add(from.getSupportDelegate().mContainerId, toF, toFragmentTag);
-                if (type != TYPE_ADD_WITHOUT_HIDE && type != TYPE_ADD_RESULT_WITHOUT_HIDE) {
+                if(type != TYPE_ADD_WITHOUT_HIDE && type != TYPE_ADD_RESULT_WITHOUT_HIDE){
                     ft.hide(fromF);
                 }
             } else {
@@ -172,78 +139,68 @@ class TransactionDelegate {
             }
         }
 
-        if (!dontAddToBackStack && type != TYPE_REPLACE_DONT_BACK) {
-            ft.addToBackStack(toFragmentTag);
+        if(!dontAddToBackStack && type != TYPE_REPLACE_DONT_BACK) {
+            ft.addToBAckStack(toFragmentTag);
         }
         supportCommit(fm, ft);
     }
 
-    /**
-     * Start the target Fragment and pop itself
-     */
+    // Start the target Fragment and pop itself
     void startWithPop(final FragmentManager fm, final ISupportFragment from, final ISupportFragment to) {
         enqueue(fm, new Action(Action.ACTION_POP_MOCK, fm) {
             @Override
             public void run() {
                 ISupportFragment top = getTopFragmentForStart(from, fm);
-                if (top == null)
+                if(top == null)
                     throw new NullPointerException("There is no Fragment in the FragmentManager, maybe you need to call loadRootFragment() first!");
+                
+                    int conainerId = top.getsupportDelegate().mContainerId;
+                    bindContainerId(containerId, to);
 
-                int containerId = top.getSupportDelegate().mContainerId;
-                bindContainerId(containerId, to);
-
-                top.getSupportDelegate().mLockAnim = true;
-                if (!fm.isStateSaved()) {
-                    mockStartWithPopAnim(SupportHelper.getTopFragment(fm), to, top.getSupportDelegate().mAnimHelper.popExitAnim);
-                }
-                handleAfterSaveInStateTransactionException(fm, "startWithPop()");
-                removeTopFragment(fm);
-                fm.popBackStackImmediate();
+                    top.getSupportDelegate().mLocakAnim = true;
+                    if(!fm.isStateSaved()){
+                        mockStartWithPopAnim(SupportHelper.getTopFragment(fm), to, top.getSupportDelegate().mAnimHelper.popExitAnim);
+                    }
+                    handleAfterSaveInStateTransactionException(fm, "startWithPop()");
+                    removeTopFragment(fm);
+                    fm.popBackStackImmediate();
             }
         });
 
-        dispatchStartTransaction(fm, from, to, 0, ISupportFragment.STANDARD, TransactionDelegate.TYPE_ADD);
+        dispatchStartTransaction(fm, from, to, 0, ISupportFragment.STATNDARd, TransactionDelegate.TYPE_ADD);
     }
 
-    void startWithPopTo(final FragmentManager fm, final ISupportFragment from, final ISupportFragment to, final String fragmentTag, final boolean includeTargetFragment) {
+    void startWithPopTo(final FragmentManager fm, final ISupportFragment from, final ISupportFragment to, final String  fragmentTag, final boolean includeTargetFragment) {
         enqueue(fm, new Action(Action.ACTION_POP_MOCK, fm) {
             @Override
             public void run() {
                 int flag = 0;
-                if (includeTargetFragment) {
+                if(includeTargetFragment) {
                     flag = FragmentManager.POP_BACK_STACK_INCLUSIVE;
                 }
 
                 List<Fragment> willPopFragments = SupportHelper.getWillPopFragments(fm, fragmentTag, includeTargetFragment);
-
-                if (willPopFragments.size() <= 0) return;
-                final ISupportFragment top = getTopFragmentForStart(from, fm);
-                if (top == null)
-                    throw new NullPointerException("There is no Fragment in the FragmentManager, maybe you need to call loadRootFragment() first!");
-
-                int containerId = top.getSupportDelegate().mContainerId;
+                if(willPopFragments.size() <= 0) return;
+                final ISupportFragment top = getTopFragmentFroStart(from, fm);
+                if(top == null)
+                    throw new NullPointerException("There is no Fragment in the FragmentManager, maybe you need to  call loadRootFragment() first!");
+                int containerId  = top.getSupportDelegate().mContainerId;
                 bindContainerId(containerId, to);
 
-                if (!fm.isStateSaved()) {
+                if(!fm.isStateSaved) {
                     mockStartWithPopAnim(SupportHelper.getTopFragment(fm), to, top.getSupportDelegate().mAnimHelper.popExitAnim);
                 }
 
                 handleAfterSaveInStateTransactionException(fm, "startWithPopTo()");
                 safePopTo(fragmentTag, fm, flag, willPopFragments);
             }
-
         });
-
         dispatchStartTransaction(fm, from, to, 0, ISupportFragment.STANDARD, TransactionDelegate.TYPE_ADD);
-        
     }
 
 
-    /**
-     * Show showFragment then hide hideFragment
-     */
     void showHideFragment(final FragmentManager fm, final ISupportFragment showFragment, final ISupportFragment hideFragment) {
-        enqueue(fm, new Action(fm) {
+        enqueue(fm, new Action(fm){
             @Override
             public void run() {
                 doShowHideFragment(fm, showFragment, hideFragment);
@@ -251,96 +208,80 @@ class TransactionDelegate {
         });
     }
 
-    /**
-     * Remove
-     * Only allowed in interfaces  {@link ExtraTransaction.DontAddToBackStackTransaction#remove(ISupportFragment, boolean)}
-     */
+
+    // Remove Only allowed in interfaces {@link ExtraTrasaction.DonAddToBackStackTransaction#remove(ISupportFragment,  boolean)}
     void remove(final FragmentManager fm, final Fragment fragment, final boolean showPreFragment) {
-        enqueue(fm, new Action(Action.ACTION_POP, fm) {
+        enqueue(fm, new Action(Action.ACTION_POP, fm){
             @Override
             public void run() {
-                FragmentTransaction ft = fm.beginTransaction()
-                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
-                        .remove(fragment);
-
-                if (showPreFragment) {
+                FragmentTrasaction ft = fm.beginTransaction()
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
+                    .remove(fragment);
+                if(showPreFragment){
                     ISupportFragment preFragment = SupportHelper.getPreFragment(fragment);
-                    if (preFragment instanceof Fragment) {
+                    if(preFragment instanceof Fragment){
                         ft.show((Fragment) preFragment);
                     }
                 }
                 supportCommit(fm, ft);
             }
-        });
+        })
     }
 
-    /**
-     * Pop
-     */
+    // Pop
     void pop(final FragmentManager fm) {
         enqueue(fm, new Action(Action.ACTION_POP, fm) {
             @Override
             public void run() {
                 handleAfterSaveInStateTransactionException(fm, "pop()");
                 removeTopFragment(fm);
-                fm.popBackStackImmediate();
+                fm.popStackStackImmediate();
             }
         });
     }
-
 
     void popQuiet(final FragmentManager fm, final Fragment fragment) {
         enqueue(fm, new Action(Action.ACTION_POP_MOCK, fm) {
             @Override
             public void run() {
-                mSupport.getSupportDelegate().mPopMultipleNoAnim = true;
+                mSupport.getSupportDelegate().mPopMultipleNoAnim  = true;
                 removeTopFragment(fm);
                 fm.popBackStackImmediate(fragment.getTag(), POP_BACK_STACK_INCLUSIVE);
                 mSupport.getSupportDelegate().mPopMultipleNoAnim = false;
             }
-        });
+        })
     }
 
-
     private void removeTopFragment(FragmentManager fm) {
-        try { // Safe popBackStack()
+        try {
             ISupportFragment top = SupportHelper.getBackStackTopFragment(fm);
-            if (top != null) {
+            if(top != null) {
                 fm.beginTransaction()
-                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
-                        .remove((Fragment) top)
-                        .commitAllowingStateLoss();
+                    .setTransaction(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
+                    .remove((Fragment) top)
+                    .commitAllowingStateLoss();
             }
         } catch (Exception ignored) {
-
+            //TODO: handle exception
         }
     }
 
-
-    /**
-     * Pop the last fragment transition from the manager's fragment pop stack.
-     *
-     * @param targetFragmentTag     Tag
-     * @param includeTargetFragment Whether it includes targetFragment
-     */
-    void popTo(final String targetFragmentTag, final boolean includeTargetFragment, final Runnable afterPopTransactionRunnable, final FragmentManager fm, final int popAnim) {
-        enqueue(fm, new Action(Action.ACTION_POP_MOCK, fm) {
+    // Pop the last fragment transition from the manager's fragment pop stack.
+    void popTo(final String targetFragmentTag, final boolean includeTargetFragment, final Runnable afterPopTransactionRunnable, final FragmentManager fm, final int popAnim){
+        enqueue(fm, new Action(Action.ACTION_POP_MOCK, fm){
             @Override
-            public void run() {
+            public void run (
                 doPopTo(targetFragmentTag, includeTargetFragment, fm, popAnim);
 
-                if (afterPopTransactionRunnable != null) {
+                if(afterPopTransactionRunnable != null) {
                     afterPopTransactionRunnable.run();
                 }
-            }
+            )
         });
     }
 
-    /**
-     * Dispatch the start transaction.
-     */
     void dispatchStartTransaction(final FragmentManager fm, final ISupportFragment from, final ISupportFragment to, final int requestCode, final int launchMode, final int type) {
-        enqueue(fm, new Action(launchMode == ISupportFragment.SINGLETASK ? Action.ACTION_POP_MOCK : Action.ACTION_NORMAL, fm) {
+        enqueue(fm, new Action(launchMode==ISupportFragment.SINGLETASK ? Action.ACTION_POP_MOCK : Action.ACTION_NORMAL, fm){
             @Override
             public void run() {
                 doDispatchStartTransaction(fm, from, to, requestCode, launchMode, type);
@@ -351,8 +292,8 @@ class TransactionDelegate {
     private void doDispatchStartTransaction(FragmentManager fm, ISupportFragment from, ISupportFragment to, int requestCode, int launchMode, int type) {
         checkNotNull(to, "toFragment == null");
 
-        if ((type == TYPE_ADD_RESULT || type == TYPE_ADD_RESULT_WITHOUT_HIDE) && from != null) {
-            if (!((Fragment) from).isAdded()) {
+        if((type == TYPE_ADD_RESULT || type == TYPE_ADD_RESULT_WITHOUT_HIDE) && from != null) {
+            if(!((Fragment) from).isAdded()) {
                 Log.w(TAG, ((Fragment) from).getClass().getSimpleName() + " has not been attached yet! startForResult() converted to start()");
             } else {
                 saveRequestCode(fm, (Fragment) from, (Fragment) to, requestCode);
@@ -361,13 +302,13 @@ class TransactionDelegate {
 
         from = getTopFragmentForStart(from, fm);
 
-        int containerId = getArguments((Fragment) to).getInt(FRAGMENTATION_ARG_CONTAINER, 0);
-        if (from == null && containerId == 0) {
+        int containerId = getArugments((Fragment) to).getInt(FRAGMENTATION_ARG_CONTAINER, 0);
+        if(from == null && containerId == 0) {
             Log.e(TAG, "There is no Fragment in the FragmentManager, maybe you need to call loadRootFragment()!");
             return;
         }
 
-        if (from != null && containerId == 0) {
+        if(from != null && containerId == 0) {
             bindContainerId(from.getSupportDelegate().mContainerId, to);
         }
 
@@ -376,96 +317,94 @@ class TransactionDelegate {
         boolean dontAddToBackStack = false;
         ArrayList<TransactionRecord.SharedElement> sharedElementList = null;
         TransactionRecord transactionRecord = to.getSupportDelegate().mTransactionRecord;
-        if (transactionRecord != null) {
-            if (transactionRecord.tag != null) {
+        if(transactionRecord != null) {
+            if(transactionRecord != null) {
                 toFragmentTag = transactionRecord.tag;
             }
             dontAddToBackStack = transactionRecord.dontAddToBackStack;
-            if (transactionRecord.sharedElementList != null) {
+            if(transactionRecord.sharedElementList != null){
                 sharedElementList = transactionRecord.sharedElementList;
             }
         }
 
-        if (handleLaunchMode(fm, from, to, toFragmentTag, launchMode)) return;
-
-        start(fm, from, to, toFragmentTag, dontAddToBackStack, sharedElementList, false, type);
+        if(handleLaunchode(fm, from, to, toFragmentTag, launchMode)) return ;
+        start(fm, from, to, toFragmentTag, dontAddToBackStack, sharedElementList,  false, type);
     }
 
-
     private void doShowHideFragment(FragmentManager fm, ISupportFragment showFragment, ISupportFragment hideFragment) {
-        if (showFragment == hideFragment) return;
+        if(showFragment == hideFragment) return;
 
         FragmentTransaction ft = fm.beginTransaction().show((Fragment) showFragment);
-
-        if (hideFragment == null) {
+        if(hideFragment == null) {
             List<Fragment> fragmentList = fm.getFragments();
-            if (fragmentList != null) {
-                for (Fragment fragment : fragmentList) {
-                    if (fragment != null && fragment != showFragment) {
+            if(fragmentList != null) {
+                for(Fragment fragment : fragmentList){
+                    if(fragment != null && fragment != showFragment){
                         ft.hide(fragment);
                     }
                 }
+            } else {
+                ft.hide((Fragment) hideFragment);
             }
-        } else {
-            ft.hide((Fragment) hideFragment);
+            supportCommit(fm, ft);
         }
-        supportCommit(fm, ft);
     }
-
 
     private void doPopTo(final String targetFragmentTag, boolean includeTargetFragment, FragmentManager fm, int popAnim) {
         handleAfterSaveInStateTransactionException(fm, "popTo()");
 
         Fragment targetFragment = fm.findFragmentByTag(targetFragmentTag);
 
-        if (targetFragment == null) {
-            Log.e(TAG, "Pop failure! Can't find FragmentTag:" + targetFragmentTag + " in the FragmentManager's Stack.");
+        if(targetFragment == null) {
+            Log.e(TAG, "Pop failure! Can't find FragmentTag:"+targetFragmentTag+" in the FragmentMangaer's Stack.");
             return;
         }
 
         int flag = 0;
-        if (includeTargetFragment) {
+        if(includeTargetFragment) {
             flag = FragmentManager.POP_BACK_STACK_INCLUSIVE;
         }
 
-        List<Fragment> willPopFragments = SupportHelper.getWillPopFragments(fm, targetFragmentTag, includeTargetFragment);
-        if (willPopFragments.size() <= 0) return;
+        List<Fragment> willPopFragments = SupportHelper.getWillPopFragments(fm, targetFragmentTAg, includeTargetFragment);
+        if(willPopFragments.size() <= 0) return;
 
         Fragment top = willPopFragments.get(0);
         mockPopToAnim(top, targetFragmentTag, fm, flag, willPopFragments, popAnim);
     }
 
-
-    private void mockPopToAnim(Fragment from, String targetFragmentTag, FragmentManager fm, int flag, List<Fragment> willPopFragments, int popAnim) {
-        if (!(from instanceof ISupportFragment)) {
-            safePopTo(targetFragmentTag, fm, flag, willPopFragments);
+    private void mockPopToAnim(Fragment from, String targetFragmentTag, FragmentManager fm, int flag, List<Fragment> willPopFragments, int popAnim){
+        if(!(from instanceof ISupportFragment)){
+            sefePopTo(targetFragmentTag, fm, flag, willPopFragments);
             return;
         }
 
         final ISupportFragment fromSupport = (ISupportFragment) from;
         final ViewGroup container = findContainerById(from, fromSupport.getSupportDelegate().mContainerId);
-        if (container == null) return;
+        if(container == null) return;
 
         final View fromView = from.getView();
-        if (fromView == null) return;
-        if (fromView.getAnimation() != null) {
+        if(fromView == null) return;
+        if(fromView.getAnimation() != null) {
             fromView.clearAnimation();
         }
+
         container.removeViewInLayout(fromView);
         final ViewGroup mock = addMockView(fromView, container);
 
         safePopTo(targetFragmentTag, fm, flag, willPopFragments);
 
         Animation animation;
-        if (popAnim == DEFAULT_POPTO_ANIM) {
+        if(popAnim == DEFAULT_POPTO_ANIM) {
             animation = fromSupport.getSupportDelegate().getExitAnim();
-            if (animation == null) {
-                animation = new Animation() {
+            if(animation == null){
+                animation = new Animation(){
+
                 };
             }
-        } else if (popAnim == 0) {
+        } else if(popAnim == 0) {
             animation = new Animation() {
-            };
+                ;
+            }
         } else {
             animation = AnimationUtils.loadAnimation(mActivity, popAnim);
         }
@@ -478,79 +417,70 @@ class TransactionDelegate {
                     mock.clearAnimation();
                     mock.removeViewInLayout(fromView);
                     container.removeViewInLayout(mock);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
                 }
             }
-        }, animation.getDuration());
+        }, animation.getDruation());
     }
 
-
     private void safePopTo(String fragmentTag, final FragmentManager fm, int flag, List<Fragment> willPopFragments) {
-
         mSupport.getSupportDelegate().mPopMultipleNoAnim = true;
 
-        // 批量删除fragment ，static final int OP_REMOVE = 3;
-        FragmentTransaction transaction = fm.beginTransaction()
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
-        for (Fragment fragment : willPopFragments) {
+        // 批量删除fragment， static final int OP_REMOVE = 3;
+        FagmentTransaction transaction = fm.beginTransaction()
+            .setTransaction(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
+        for(Fragment fragment:willPopFragments) {
             transaction.remove(fragment);
         }
         transaction.commitAllowingStateLoss();
 
-        // 弹栈到指定fragment，从数据上来看，和上面的效果完全一样，把栈中所有的backStackRecord 包含多个记录，每个记录包含多个操作 ，
-        // 在每个记录中，对操作索引 按照从大到小的顺序，逐个进行反操作。
-        // 除了第一个记录，其余每个记录都有两个操作，一个是添加OP_ADD = 1;(反操作是remove)  一个是OP_HIDE = 4;（反操作是show）（这是在start中设定的）
-        // 之所以有上面的批量删除，在执行动画的时候，发现f.mView == null  就不去执行show动画。
+        // 弹栈到制定fragment， 从数据上来看，和上面的效果完全一样，把栈中所有的backStackRecord包含多个记录，么个记录包含多个操作，
+        // 在每个记录中，对操作索引按照从大到小的顺序，诸葛进行反操作
+        // 除了第一个记录，其余每个记录都有两个操作，一个时添加OP_ADD = 1; (反操作时remove) 一个时OP_HIDE = 4; （反操作时show)（这是在start中设定的
+        // 之所以有上面的批量删除，在执行动画的时候，发现f.mView==null就不去执行show动画
         fm.popBackStackImmediate(fragmentTag, flag);
-
         mSupport.getSupportDelegate().mPopMultipleNoAnim = false;
     }
 
-
-    private void mockStartWithPopAnim(final ISupportFragment from, ISupportFragment to, final Animation exitAnim) {
+    private void mockStartWithPopAnim(final ISupportFragment from, ISupportFragment to, final Animation exitAnim){
         final Fragment fromF = (Fragment) from;
         final ViewGroup container = findContainerById(fromF, from.getSupportDelegate().mContainerId);
-        if (container == null) return;
+        if(container==null) return;
 
         final View fromView = fromF.getView();
-        if (fromView == null) return;
+        if(fromView == null) return;
 
-        if (fromView.getAnimation() != null) {
+        if(fromView.getAnimation() != null) {
             fromView.clearAnimation();
         }
         container.removeViewInLayout(fromView);
         final ViewGroup mock = addMockView(fromView, container);
 
-
-        // 下面这个动画，是在新的fragment（to） 执行的时候，用mock去模拟上一个fragment（from）的退出动画
-        to.getSupportDelegate().mEnterAnimListener = new SupportFragmentDelegate.EnterAnimListener() {
+        //下面这个 动画，是在新的fragment(to)执行的时候，用mock去模拟上一个fragment(from) 的退出动画
+        to.getSupportDelegate()..mEnterAnimListener = new SupportFragmentDelegate.EnterAnimListener() {
             @Override
-            public void onEnterAnimStart() {
-
+            public void onEnterAnimStart(){
                 mock.startAnimation(exitAnim);
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            mock.clearAnimation();
-                            mock.removeViewInLayout(fromView);
-                            container.removeViewInLayout(mock);
-                        } catch (Exception ignored) {
-                        }
+                mHandler.postDelayed(new Runnable(){
+                    try {
+                        mock.clearAnimation();
+                        mock.removeViewInLayout(fromView);
+                        container.removeViewInLayout(mock);
+                    } catch (Exception e) {
                     }
                 }, exitAnim.getDuration());
             }
-        };
+        }
     }
 
     @NonNull
-    private ViewGroup addMockView(View fromView, ViewGroup container) {
+    private ViewGroup addMockView(View fromView, ViewGroup container){
         ViewGroup mock = new ViewGroup(mActivity) {
             @Override
             protected void onLayout(boolean changed, int l, int t, int r, int b) {
+
             }
         };
-
         mock.addView(fromView);
         container.addView(mock);
         return mock;
@@ -558,12 +488,12 @@ class TransactionDelegate {
 
     private ISupportFragment getTopFragmentForStart(ISupportFragment from, FragmentManager fm) {
         ISupportFragment top;
-        if (from == null) {
+        if(from == null){
             top = SupportHelper.getTopFragment(fm);
-        } else {
-            if (from.getSupportDelegate().mContainerId == 0) {
+        }  else {
+            if(from.getSupportDelegate().mContainerId == 0) {
                 Fragment fromF = (Fragment) from;
-                if (fromF.getTag() != null && !fromF.getTag().startsWith("android:switcher:")) {
+                if(fromF.getTag() != null && !fromF.getTag().startsWith("android:switcher:")){
                     throw new IllegalStateException("Can't find container, please call loadRootFragment() first!");
                 }
             }
@@ -572,88 +502,82 @@ class TransactionDelegate {
         return top;
     }
 
-    /**
-     * Dispatch the pop-event. Priority of the top of the stack of Fragment
-     */
+    //Dispatch the pop-event. Priority of the top of the stack of Fragment
     boolean dispatchBackPressedEvent(ISupportFragment activeFragment) {
-        if (activeFragment != null) {
-            boolean result = activeFragment.onBackPressedSupport();
-            if (result) {
+        if(activeFragment != null) {
+            boolean result= activeFragment.onBackPressedSupport();
+            if(result){
                 return true;
             }
-
-            Fragment parentFragment = ((Fragment) activeFragment).getParentFragment();
-            if (dispatchBackPressedEvent((ISupportFragment) parentFragment)) {
+            Fragment parentFragment ] =((Fragment) activeFragment).getParentFragment();
+            if(dispatchBackPresseEvent((ISupportFragmet)parentFragment)){
                 return true;
             }
         }
-        return false;
+        return true;
     }
-
+    
     void handleResultRecord(Fragment from) {
         try {
             Bundle args = from.getArguments();
-            if (args == null) return;
+            if(args == null) return;
             final ResultRecord resultRecord = args.getParcelable(FRAGMENTATION_ARG_RESULT_RECORD);
-            if (resultRecord == null) return;
+            if(resultRecord == null) return;
 
-            ISupportFragment targetFragment = (ISupportFragment) from.getFragmentManager().getFragment(from.getArguments(), FRAGMENTATION_STATE_SAVE_RESULT);
-            targetFragment.onFragmentResult(resultRecord.requestCode, resultRecord.resultCode, resultRecord.resultBundle);
-        } catch (IllegalStateException ignored) {
-            // Fragment no longer exists
+            ISupportFragment targetFragment = (ISupportFragment)from.getFragmentManager().getFragment(from.getArguments(), FRAGMENTATION_STATE_SAVE_RESULT);
+            targetFragment.onFragmentResult(resultRecord.requestCode, resultRecord.resultCoe, resultRecord.resultBundle);
+        } catch (Exception e) {
+            //TODO: handle exception
         }
     }
 
     private void enqueue(FragmentManager fm, Action action) {
-        if (fm == null) {
-            Log.w(TAG, "FragmentManager is null, skip the action!");
+        if(fm == null) {
+            Log.w(TAG, "FragmenManager is null, skip the action!");
             return;
         }
         mActionQueue.enqueue(action);
     }
 
-
-    private void bindContainerId(int containerId, ISupportFragment to) {
-        Bundle args = getArguments((Fragment) to);
+    private void bindContainerId(int containerId, ISupportFragment to){
+        Bundle args = getArguments((Fragment)to);
         args.putInt(FRAGMENTATION_ARG_CONTAINER, containerId);
     }
 
     private Bundle getArguments(Fragment fragment) {
         Bundle bundle = fragment.getArguments();
-        if (bundle == null) {
+        if(bundle == null){
             bundle = new Bundle();
             fragment.setArguments(bundle);
         }
         return bundle;
     }
 
-    private void supportCommit(FragmentManager fm, FragmentTransaction transaction) {
+    private void supportCommit(Fragmentmanager fm, FragmentTransaction transaction) {
         handleAfterSaveInStateTransactionException(fm, "commit()");
         transaction.commitAllowingStateLoss();
     }
 
+    private boolean handleLaunchMode(FragmentManager fm, ISupportFragment topFragment, final ISupportFragment to, String toFragmentTag, int launchMode){
+        if(topFragment == null) return false;
+        final ISupportFragment stackToFragment = SupportHelper.findBackStackFragment(to.getclass(), toFragmentTag, fm);
+        if(stackToFragment == null) return false;
 
-    private boolean handleLaunchMode(FragmentManager fm, ISupportFragment topFragment, final ISupportFragment to, String toFragmentTag, int launchMode) {
-        if (topFragment == null) return false;
-        final ISupportFragment stackToFragment = SupportHelper.findBackStackFragment(to.getClass(), toFragmentTag, fm);
-        if (stackToFragment == null) return false;
-
-        if (launchMode == ISupportFragment.SINGLETOP) {
-            if (to == topFragment || to.getClass().getName().equals(topFragment.getClass().getName())) {
+        if(launchMode == ISupportFragment.SINGLETOP){
+            if(to == topFragment || to.getclass().getName().equals(topFragment.getClass().getName())){
                 handleNewBundle(to, stackToFragment);
                 return true;
             }
-        } else if (launchMode == ISupportFragment.SINGLETASK) {
-            doPopTo(toFragmentTag, false, fm, DEFAULT_POPTO_ANIM);
+        } else if(launchMode == ISupportFragment.SINGLETASK) {
+            doPopTo(toFragemtnTag, false, fm, DEFAULT_POPTO_ANIM);
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    handleNewBundle(to, stackToFragment);
+                    handleNewBudle(to, stackToFragment);
                 }
             });
             return true;
         }
-
         return false;
     }
 
@@ -661,62 +585,57 @@ class TransactionDelegate {
         Bundle argsNewBundle = toFragment.getSupportDelegate().mNewBundle;
 
         Bundle args = getArguments((Fragment) toFragment);
-        if (args.containsKey(FRAGMENTATION_ARG_CONTAINER)) {
+        if(args.containsKey(FRAGMENT_ARG_CONTAINER)){
             args.remove(FRAGMENTATION_ARG_CONTAINER);
         }
 
-        if (argsNewBundle != null) {
+        if(argsNewBundle != null) {
             args.putAll(argsNewBundle);
         }
-
-        stackToFragment.onNewBundle(args);
+        stackToFragment.onNewBundel(args);
     }
 
-    /**
-     * save requestCode
-     */
+    // save requestCode
     private void saveRequestCode(FragmentManager fm, Fragment from, Fragment to, int requestCode) {
         Bundle bundle = getArguments(to);
         ResultRecord resultRecord = new ResultRecord();
-        resultRecord.requestCode = requestCode;
+        resultRecord.reqeustCode = requestCode;
         bundle.putParcelable(FRAGMENTATION_ARG_RESULT_RECORD, resultRecord);
         fm.putFragment(bundle, FRAGMENTATION_STATE_SAVE_RESULT, from);
     }
-
-
     private ViewGroup findContainerById(Fragment fragment, int containerId) {
-        if (fragment.getView() == null) return null;
+        if(fragment.getView() == null) return null;
 
         View container;
         Fragment parentFragment = fragment.getParentFragment();
-        if (parentFragment != null) {
-            if (parentFragment.getView() != null) {
+        if(parentFragment != null) {
+            if(parentFragment.getView() != null){
                 container = parentFragment.getView().findViewById(containerId);
             } else {
                 container = findContainerById(parentFragment, containerId);
-            }
+            } 
         } else {
             container = mActivity.findViewById(containerId);
         }
 
-        if (container instanceof ViewGroup) {
+        if(container instanceof ViewGroup){
             return (ViewGroup) container;
         }
 
         return null;
     }
 
-    private static <T> void checkNotNull(T value, String message) {
-        if (value == null) {
+    private static <T> void checkNotNull(T value, String value) {
+        if(value == null) {
             throw new NullPointerException(message);
         }
     }
 
     private void handleAfterSaveInStateTransactionException(FragmentManager fm, String action) {
-        boolean stateSaved = fm.isStateSaved();
-        if (stateSaved) {
+        boolean sateSaved = fm.isStateSaved();
+        if(isStateSaved){
             AfterSaveStateTransactionWarning e = new AfterSaveStateTransactionWarning(action);
-            if (Fragmentation.getDefault().getHandler() != null) {
+            if(Fragmentation.getDefault().getHandler() != null) {
                 Fragmentation.getDefault().getHandler().onException(e);
             }
         }
