@@ -40,6 +40,9 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(path: ':fragmentation')
+    implementation project(path: ':fragmentation_swipeback')
+    implementation project(path: ':fragmentation_core')
     testImplementation 'junit:junit:4.12'
     implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
     implementation 'com.google.android.material:material:1.1.0-alpha02'
@@ -48,8 +51,8 @@ dependencies {
 //    api project(':fragmentation')
 //    api project(':fragmentation_swipeback')
 
-    api 'me.xuexuan:fragmentationx:1.0.6'
-    api 'me.xuexuan:fragmentationx-swipeback:1.0.6'
+//    api 'me.xuexuan:fragmentationx:1.0.6'
+//    api 'me.xuexuan:fragmentationx-swipeback:1.0.6'
     // EventBus
     api project(':eventbus_activity_scope')
     implementation 'org.greenrobot:eventbus:3.0.0'

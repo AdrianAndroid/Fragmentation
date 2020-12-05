@@ -28,6 +28,7 @@ import static androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 
 
 /**
+ * 使用队列的方式进行操作
  * Controller
  * Created by YoKeyword on 16/1/22.
  */
@@ -65,6 +66,7 @@ class TransactionDelegate {
     ActionQueue mActionQueue;
 
     TransactionDelegate(ISupportActivity support) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         this.mSupport = support;
         this.mActivity = (FragmentActivity) support;
         mHandler = new Handler(Looper.getMainLooper());
@@ -72,6 +74,7 @@ class TransactionDelegate {
     }
 
     void post(final Runnable runnable) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mActionQueue.enqueue(new Action(mActivity.getSupportFragmentManager()) {
             @Override
             public void run() {
@@ -81,6 +84,7 @@ class TransactionDelegate {
     }
 
     void loadRootTransaction(final FragmentManager fm, final int containerId, final ISupportFragment to, final boolean addToBackStack, final boolean allowAnimation) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         enqueue(fm, new Action(Action.ACTION_LOAD, fm) {
             @Override
             public void run() {
@@ -100,6 +104,7 @@ class TransactionDelegate {
     }
 
     void loadMultipleRootTransaction(final FragmentManager fm, final int containerId, final int showPosition, final ISupportFragment... tos) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         enqueue(fm, new Action(Action.ACTION_LOAD, fm) {
             @Override
             public void run() {
@@ -127,6 +132,7 @@ class TransactionDelegate {
 
     private void start(FragmentManager fm, final ISupportFragment from, ISupportFragment to, String toFragmentTag,
                        boolean dontAddToBackStack, ArrayList<TransactionRecord.SharedElement> sharedElementList, boolean allowRootFragmentAnim, int type) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         FragmentTransaction ft = fm.beginTransaction();
         boolean addMode = (type == TYPE_ADD || type == TYPE_ADD_RESULT || type == TYPE_ADD_WITHOUT_HIDE || type == TYPE_ADD_RESULT_WITHOUT_HIDE);
         Fragment fromF = (Fragment) from;
@@ -182,6 +188,7 @@ class TransactionDelegate {
      * Start the target Fragment and pop itself
      */
     void startWithPop(final FragmentManager fm, final ISupportFragment from, final ISupportFragment to) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         enqueue(fm, new Action(Action.ACTION_POP_MOCK, fm) {
             @Override
             public void run() {
@@ -206,6 +213,7 @@ class TransactionDelegate {
     }
 
     void startWithPopTo(final FragmentManager fm, final ISupportFragment from, final ISupportFragment to, final String fragmentTag, final boolean includeTargetFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         enqueue(fm, new Action(Action.ACTION_POP_MOCK, fm) {
             @Override
             public void run() {
@@ -243,6 +251,7 @@ class TransactionDelegate {
      * Show showFragment then hide hideFragment
      */
     void showHideFragment(final FragmentManager fm, final ISupportFragment showFragment, final ISupportFragment hideFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         enqueue(fm, new Action(fm) {
             @Override
             public void run() {
@@ -256,6 +265,7 @@ class TransactionDelegate {
      * Only allowed in interfaces  {@link ExtraTransaction.DontAddToBackStackTransaction#remove(ISupportFragment, boolean)}
      */
     void remove(final FragmentManager fm, final Fragment fragment, final boolean showPreFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         enqueue(fm, new Action(Action.ACTION_POP, fm) {
             @Override
             public void run() {
@@ -278,6 +288,7 @@ class TransactionDelegate {
      * Pop
      */
     void pop(final FragmentManager fm) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         enqueue(fm, new Action(Action.ACTION_POP, fm) {
             @Override
             public void run() {
@@ -290,6 +301,7 @@ class TransactionDelegate {
 
 
     void popQuiet(final FragmentManager fm, final Fragment fragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         enqueue(fm, new Action(Action.ACTION_POP_MOCK, fm) {
             @Override
             public void run() {
@@ -303,6 +315,7 @@ class TransactionDelegate {
 
 
     private void removeTopFragment(FragmentManager fm) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         try { // Safe popBackStack()
             ISupportFragment top = SupportHelper.getBackStackTopFragment(fm);
             if (top != null) {
@@ -324,6 +337,7 @@ class TransactionDelegate {
      * @param includeTargetFragment Whether it includes targetFragment
      */
     void popTo(final String targetFragmentTag, final boolean includeTargetFragment, final Runnable afterPopTransactionRunnable, final FragmentManager fm, final int popAnim) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         enqueue(fm, new Action(Action.ACTION_POP_MOCK, fm) {
             @Override
             public void run() {
@@ -340,6 +354,7 @@ class TransactionDelegate {
      * Dispatch the start transaction.
      */
     void dispatchStartTransaction(final FragmentManager fm, final ISupportFragment from, final ISupportFragment to, final int requestCode, final int launchMode, final int type) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         enqueue(fm, new Action(launchMode == ISupportFragment.SINGLETASK ? Action.ACTION_POP_MOCK : Action.ACTION_NORMAL, fm) {
             @Override
             public void run() {
@@ -349,6 +364,7 @@ class TransactionDelegate {
     }
 
     private void doDispatchStartTransaction(FragmentManager fm, ISupportFragment from, ISupportFragment to, int requestCode, int launchMode, int type) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         checkNotNull(to, "toFragment == null");
 
         if ((type == TYPE_ADD_RESULT || type == TYPE_ADD_RESULT_WITHOUT_HIDE) && from != null) {
@@ -393,6 +409,7 @@ class TransactionDelegate {
 
 
     private void doShowHideFragment(FragmentManager fm, ISupportFragment showFragment, ISupportFragment hideFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (showFragment == hideFragment) return;
 
         FragmentTransaction ft = fm.beginTransaction().show((Fragment) showFragment);
@@ -414,6 +431,7 @@ class TransactionDelegate {
 
 
     private void doPopTo(final String targetFragmentTag, boolean includeTargetFragment, FragmentManager fm, int popAnim) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         handleAfterSaveInStateTransactionException(fm, "popTo()");
 
         Fragment targetFragment = fm.findFragmentByTag(targetFragmentTag);
@@ -437,6 +455,7 @@ class TransactionDelegate {
 
 
     private void mockPopToAnim(Fragment from, String targetFragmentTag, FragmentManager fm, int flag, List<Fragment> willPopFragments, int popAnim) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (!(from instanceof ISupportFragment)) {
             safePopTo(targetFragmentTag, fm, flag, willPopFragments);
             return;
@@ -486,6 +505,7 @@ class TransactionDelegate {
 
 
     private void safePopTo(String fragmentTag, final FragmentManager fm, int flag, List<Fragment> willPopFragments) {
+        if(BuildConfig.DEBUG) F.m(getClass());
 
         mSupport.getSupportDelegate().mPopMultipleNoAnim = true;
 
@@ -508,6 +528,7 @@ class TransactionDelegate {
 
 
     private void mockStartWithPopAnim(final ISupportFragment from, ISupportFragment to, final Animation exitAnim) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         final Fragment fromF = (Fragment) from;
         final ViewGroup container = findContainerById(fromF, from.getSupportDelegate().mContainerId);
         if (container == null) return;
@@ -545,6 +566,7 @@ class TransactionDelegate {
 
     @NonNull
     private ViewGroup addMockView(View fromView, ViewGroup container) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         ViewGroup mock = new ViewGroup(mActivity) {
             @Override
             protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -557,6 +579,7 @@ class TransactionDelegate {
     }
 
     private ISupportFragment getTopFragmentForStart(ISupportFragment from, FragmentManager fm) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         ISupportFragment top;
         if (from == null) {
             top = SupportHelper.getTopFragment(fm);
@@ -576,6 +599,7 @@ class TransactionDelegate {
      * Dispatch the pop-event. Priority of the top of the stack of Fragment
      */
     boolean dispatchBackPressedEvent(ISupportFragment activeFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (activeFragment != null) {
             boolean result = activeFragment.onBackPressedSupport();
             if (result) {
@@ -591,6 +615,7 @@ class TransactionDelegate {
     }
 
     void handleResultRecord(Fragment from) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         try {
             Bundle args = from.getArguments();
             if (args == null) return;
@@ -605,6 +630,7 @@ class TransactionDelegate {
     }
 
     private void enqueue(FragmentManager fm, Action action) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (fm == null) {
             Log.w(TAG, "FragmentManager is null, skip the action!");
             return;
@@ -614,11 +640,13 @@ class TransactionDelegate {
 
 
     private void bindContainerId(int containerId, ISupportFragment to) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         Bundle args = getArguments((Fragment) to);
         args.putInt(FRAGMENTATION_ARG_CONTAINER, containerId);
     }
 
     private Bundle getArguments(Fragment fragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         Bundle bundle = fragment.getArguments();
         if (bundle == null) {
             bundle = new Bundle();
@@ -628,12 +656,14 @@ class TransactionDelegate {
     }
 
     private void supportCommit(FragmentManager fm, FragmentTransaction transaction) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         handleAfterSaveInStateTransactionException(fm, "commit()");
         transaction.commitAllowingStateLoss();
     }
 
 
     private boolean handleLaunchMode(FragmentManager fm, ISupportFragment topFragment, final ISupportFragment to, String toFragmentTag, int launchMode) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (topFragment == null) return false;
         final ISupportFragment stackToFragment = SupportHelper.findBackStackFragment(to.getClass(), toFragmentTag, fm);
         if (stackToFragment == null) return false;
@@ -658,6 +688,7 @@ class TransactionDelegate {
     }
 
     private void handleNewBundle(ISupportFragment toFragment, ISupportFragment stackToFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         Bundle argsNewBundle = toFragment.getSupportDelegate().mNewBundle;
 
         Bundle args = getArguments((Fragment) toFragment);
@@ -676,6 +707,7 @@ class TransactionDelegate {
      * save requestCode
      */
     private void saveRequestCode(FragmentManager fm, Fragment from, Fragment to, int requestCode) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         Bundle bundle = getArguments(to);
         ResultRecord resultRecord = new ResultRecord();
         resultRecord.requestCode = requestCode;
@@ -685,6 +717,7 @@ class TransactionDelegate {
 
 
     private ViewGroup findContainerById(Fragment fragment, int containerId) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (fragment.getView() == null) return null;
 
         View container;
@@ -713,6 +746,7 @@ class TransactionDelegate {
     }
 
     private void handleAfterSaveInStateTransactionException(FragmentManager fm, String action) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         boolean stateSaved = fm.isStateSaved();
         if (stateSaved) {
             AfterSaveStateTransactionWarning e = new AfterSaveStateTransactionWarning(action);

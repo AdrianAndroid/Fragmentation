@@ -17,6 +17,8 @@ import androidx.annotation.NonNull;
 
 import java.util.List;
 
+import me.yokeyword.fragmentation.BuildConfig;
+import me.yokeyword.fragmentation.F;
 import me.yokeyword.fragmentation.R;
 
 /**
@@ -33,20 +35,24 @@ public class DebugHierarchyViewContainer extends ScrollView {
 
     public DebugHierarchyViewContainer(Context context) {
         super(context);
+        if(BuildConfig.DEBUG) F.m(getClass());
         initView(context);
     }
 
     public DebugHierarchyViewContainer(Context context, AttributeSet attrs) {
         super(context, attrs);
+        if(BuildConfig.DEBUG) F.m(getClass());
         initView(context);
     }
 
     public DebugHierarchyViewContainer(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        if(BuildConfig.DEBUG) F.m(getClass());
         initView(context);
     }
 
     private void initView(Context context) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mContext = context;
         HorizontalScrollView hScrollView = new HorizontalScrollView(context);
         mLinearLayout = new LinearLayout(context);
@@ -64,17 +70,19 @@ public class DebugHierarchyViewContainer extends ScrollView {
     }
 
     public void bindFragmentRecords(List<DebugFragmentRecord> fragmentRecords) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mLinearLayout.removeAllViews();
-        LinearLayout ll = getTitleLayout();
+        LinearLayout ll = getTitleLayout(); // 栈视图 ❓
         mLinearLayout.addView(ll);
 
         if (fragmentRecords == null) return;
-
+        // 设置具体的值
         DebugHierarchyViewContainer.this.setView(fragmentRecords, 0, null);
     }
 
     @NonNull
     private LinearLayout getTitleLayout() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mTitleLayout != null) return mTitleLayout;
 
         mTitleLayout = new LinearLayout(mContext);
@@ -109,16 +117,17 @@ public class DebugHierarchyViewContainer extends ScrollView {
     }
 
     private void setView(final List<DebugFragmentRecord> fragmentRecordList, final int hierarchy, final TextView tvItem) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         for (int i = fragmentRecordList.size() - 1; i >= 0; i--) {
             DebugFragmentRecord child = fragmentRecordList.get(i);
             int tempHierarchy = hierarchy;
 
             final TextView childTvItem;
-            childTvItem = getTextView(child, tempHierarchy);
-            childTvItem.setTag(R.id.hierarchy, tempHierarchy);
+            childTvItem = getTextView(child, tempHierarchy); //具体的标题
+            childTvItem.setTag(R.id.hierarchy, tempHierarchy); // 每一个TextView都设置一个tag，便于设置层级
 
             final List<DebugFragmentRecord> childFragmentRecord = child.childFragmentRecord;
-            if (childFragmentRecord != null && childFragmentRecord.size() > 0) {
+            if (childFragmentRecord != null && childFragmentRecord.size() > 0) { // 有层级的情况下
                 tempHierarchy++;
                 childTvItem.setCompoundDrawablesWithIntrinsicBounds(R.drawable.fragmentation_ic_right, 0, 0, 0);
                 final int finalChilHierarchy = tempHierarchy;
@@ -141,7 +150,7 @@ public class DebugHierarchyViewContainer extends ScrollView {
                         }
                     }
                 });
-            } else {
+            } else { // 没有层级的情况下
                 childTvItem.setPadding(childTvItem.getPaddingLeft() + mPadding, 0, mPadding, 0);
             }
 
@@ -154,11 +163,13 @@ public class DebugHierarchyViewContainer extends ScrollView {
     }
 
     private void handleExpandView(List<DebugFragmentRecord> childFragmentRecord, int finalChilHierarchy, TextView childTvItem) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         DebugHierarchyViewContainer.this.setView(childFragmentRecord, finalChilHierarchy, childTvItem);
         childTvItem.setCompoundDrawablesWithIntrinsicBounds(R.drawable.fragmentation_ic_expandable, 0, 0, 0);
     }
 
     private void removeView(int hierarchy) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         int size = mLinearLayout.getChildCount();
         for (int i = size - 1; i >= 0; i--) {
             View view = mLinearLayout.getChildAt(i);
@@ -169,7 +180,8 @@ public class DebugHierarchyViewContainer extends ScrollView {
     }
 
     private TextView getTextView(DebugFragmentRecord fragmentRecord, int hierarchy) {
-        TextView tvItem = new TextView(mContext);
+        if(BuildConfig.DEBUG) F.m(getClass());
+        TextView tvItem = new TextView(mContext); // 需要显示的文字
 
         ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, mItemHeight);
         tvItem.setLayoutParams(params);

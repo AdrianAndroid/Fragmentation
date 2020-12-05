@@ -2,7 +2,9 @@ package me.yokeyword.sample.demo_wechat.base;
 
 import android.widget.Toast;
 
+import me.yokeyword.fragmentation.F;
 import me.yokeyword.fragmentation.SupportFragment;
+import me.yokeyword.sample.BuildConfig;
 import me.yokeyword.sample.R;
 
 /**
@@ -21,6 +23,7 @@ public abstract class BaseMainFragment extends SupportFragment {
      */
     @Override
     public boolean onBackPressedSupport() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (System.currentTimeMillis() - TOUCH_TIME < WAIT_TIME) {
             _mActivity.finish();
         } else {
@@ -29,4 +32,7 @@ public abstract class BaseMainFragment extends SupportFragment {
         }
         return true;
     }
+
+
+
 }

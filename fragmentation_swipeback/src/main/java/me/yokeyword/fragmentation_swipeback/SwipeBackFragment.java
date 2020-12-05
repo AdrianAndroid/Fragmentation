@@ -77,4 +77,9 @@ public class SwipeBackFragment extends SupportFragment implements ISwipeBackFrag
         mDelegate.onDestroyView();
         super.onDestroyView();
     }
+
+    @Override
+    public Class<?> getPrintClass() {
+        return getClass();
+    }
 }

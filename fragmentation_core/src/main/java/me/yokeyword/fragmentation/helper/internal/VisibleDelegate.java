@@ -11,6 +11,8 @@ import androidx.fragment.app.FragmentManager;
 
 import java.util.List;
 
+import me.yokeyword.fragmentation.BuildConfig;
+import me.yokeyword.fragmentation.F;
 import me.yokeyword.fragmentation.ISupportFragment;
 
 /**
@@ -41,11 +43,13 @@ public class VisibleDelegate {
     private Fragment mFragment;
 
     public VisibleDelegate(ISupportFragment fragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         this.mSupportF = fragment;
         this.mFragment = (Fragment) fragment;
     }
 
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (savedInstanceState != null) {
             mSaveInstanceState = savedInstanceState;
             // setUserVisibleHint() may be called before onCreate()
@@ -55,11 +59,13 @@ public class VisibleDelegate {
     }
 
     public void onSaveInstanceState(Bundle outState) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         outState.putBoolean(FRAGMENTATION_STATE_SAVE_IS_INVISIBLE_WHEN_LEAVE, mVisibleWhenLeave);
         outState.putBoolean(FRAGMENTATION_STATE_SAVE_COMPAT_REPLACE, mFirstCreateViewCompatReplace);
     }
 
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (!mFirstCreateViewCompatReplace && mFragment.getTag() != null && mFragment.getTag().startsWith("android:switcher:")) {
             return;
         }
@@ -72,6 +78,7 @@ public class VisibleDelegate {
     }
 
     private void initVisible() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mVisibleWhenLeave && isFragmentVisible(mFragment)) {
             if (mFragment.getParentFragment() == null || isFragmentVisible(mFragment.getParentFragment())) {
                 mNeedDispatch = false;
@@ -81,6 +88,7 @@ public class VisibleDelegate {
     }
 
     public void onResume() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mIsOnceVisible) {
             if (!mCurrentVisible && mVisibleWhenLeave && isFragmentVisible(mFragment)) {
                 mNeedDispatch = false;
@@ -95,6 +103,7 @@ public class VisibleDelegate {
     }
 
     public void onPause() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         //界面还没有执行到initVisible 发出的任务taskDispatchSupportVisible，界面就已经pause。
         //为了让下次resume 时候，能正常的执行需要设置mAbortInitVisible ，来确保在resume的时候，可以执行完整initVisible
         if (mIdleDispatchSupportVisible != null) {
@@ -113,6 +122,7 @@ public class VisibleDelegate {
     }
 
     public void onHiddenChanged(boolean hidden) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (!hidden && !mFragment.isResumed()) {
             //Activity 不是resumed 状态，不用显示其下的fragment，只需设置标志位，待OnResume时 显示出来
             //if fragment is shown but not resumed, ignore...
@@ -128,6 +138,7 @@ public class VisibleDelegate {
     }
 
     private void onFragmentShownWhenNotResumed() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         //fragment 需要显示，但是Activity状态不是resumed，下次resumed的时候 fragment 需要显示， 所以可以认为离开的时候可见
         mVisibleWhenLeave = true;
 
@@ -136,6 +147,7 @@ public class VisibleDelegate {
     }
 
     private void dispatchChildOnFragmentShownWhenNotResumed() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         FragmentManager fragmentManager = mFragment.getChildFragmentManager();
         List<Fragment> childFragments = fragmentManager.getFragments();
         if (childFragments != null) {
@@ -148,10 +160,12 @@ public class VisibleDelegate {
     }
 
     public void onDestroyView() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mIsOnceVisible = false;
     }
 
     public void setUserVisibleHint(boolean isVisibleToUser) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mFragment.isResumed() || (!mFragment.isAdded() && isVisibleToUser)) {
             if (!mCurrentVisible && isVisibleToUser) {
                 safeDispatchUserVisibleHint(true);
@@ -162,6 +176,7 @@ public class VisibleDelegate {
     }
 
     private void safeDispatchUserVisibleHint(boolean visible) {
+        if(BuildConfig.DEBUG) F.m(getClass());
 
         if (visible) {
             enqueueDispatchVisible();
@@ -173,6 +188,7 @@ public class VisibleDelegate {
     }
 
     private void enqueueDispatchVisible() {
+        if(BuildConfig.DEBUG) F.m(getClass());
 
         mIdleDispatchSupportVisible = new MessageQueue.IdleHandler() {
             @Override
@@ -188,6 +204,7 @@ public class VisibleDelegate {
     }
 
     private void dispatchSupportVisible(boolean visible) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (visible && isParentInvisible()) return;
 
         if (mCurrentVisible == visible) {
@@ -214,6 +231,7 @@ public class VisibleDelegate {
     }
 
     private void dispatchChild(boolean visible) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mNeedDispatch) {
             if (checkAddState()) return;
             FragmentManager fragmentManager = mFragment.getChildFragmentManager();
@@ -231,6 +249,7 @@ public class VisibleDelegate {
     }
 
     private boolean isParentInvisible() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         Fragment parentFragment = mFragment.getParentFragment();
 
         if (parentFragment instanceof ISupportFragment) {
@@ -241,6 +260,7 @@ public class VisibleDelegate {
     }
 
     private boolean checkAddState() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (!mFragment.isAdded()) {
             mCurrentVisible = !mCurrentVisible;
             return true;
@@ -249,14 +269,17 @@ public class VisibleDelegate {
     }
 
     private boolean isFragmentVisible(Fragment fragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         return !fragment.isHidden() && fragment.getUserVisibleHint();
     }
 
     public boolean isSupportVisible() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         return mCurrentVisible;
     }
 
     private Handler getHandler() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mHandler == null) {
             mHandler = new Handler(Looper.getMainLooper());
         }

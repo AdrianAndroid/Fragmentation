@@ -19,6 +19,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,8 +54,8 @@ public class DebugStackDelegate implements SensorEventListener {
         View root = mActivity.findViewById(android.R.id.content);
         if (root instanceof FrameLayout) {
             FrameLayout content = (FrameLayout) root;
-            final ImageView stackView = new ImageView(mActivity);
-            stackView.setImageResource(R.drawable.fragmentation_ic_stack);
+            final ImageView stackView = new ImageView(mActivity); // 背景图片
+            stackView.setImageResource(R.drawable.fragmentation_ic_stack); // Stack红色图片
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.gravity = Gravity.END;
             final int dp18 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 18, mActivity.getResources().getDisplayMetrics());
@@ -99,15 +100,15 @@ public class DebugStackDelegate implements SensorEventListener {
      */
     public void showFragmentStackHierarchyView() {
         if (mStackDialog != null && mStackDialog.isShowing()) return;
-        DebugHierarchyViewContainer container = new DebugHierarchyViewContainer(mActivity);
-        container.bindFragmentRecords(getFragmentRecords());
+        DebugHierarchyViewContainer container = new DebugHierarchyViewContainer(mActivity); // ScrollView
+        container.bindFragmentRecords(getFragmentRecords());// 绑定所有Records
         container.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         mStackDialog = new AlertDialog.Builder(mActivity)
                 .setView(container)
                 .setPositiveButton(android.R.string.cancel, null)
                 .setCancelable(true)
                 .create();
-        mStackDialog.show();
+        mStackDialog.show(); //显示dialog
     }
 
     /**
@@ -146,11 +147,11 @@ public class DebugStackDelegate implements SensorEventListener {
 
     private List<DebugFragmentRecord> getFragmentRecords() {
         List<DebugFragmentRecord> fragmentRecordList = new ArrayList<>();
-
+        // 获取所有的Fragment
         List<Fragment> fragmentList = mActivity.getSupportFragmentManager().getFragments();
 
         if (fragmentList == null || fragmentList.size() < 1) return null;
-
+        // 将所有的Fragment封装
         for (Fragment fragment : fragmentList) {
             addDebugFragmentRecord(fragmentRecordList, fragment);
         }
@@ -192,14 +193,25 @@ public class DebugStackDelegate implements SensorEventListener {
         return fragmentRecords;
     }
 
+    void test() {
+        Fragment fragment = new Fragment();
+    }
+
+    class MyFragment extends Fragment{
+        void test() {
+            FragmentTransaction tag = getChildFragmentManager().beginTransaction().replace(0, this, "tag");
+        }
+    }
+
+    // 封装每个Fragment，便于打印log
     private void addDebugFragmentRecord(List<DebugFragmentRecord> fragmentRecords, Fragment fragment) {
         if (fragment != null) {
             int backStackCount = fragment.getFragmentManager().getBackStackEntryCount();
             CharSequence name = fragment.getClass().getSimpleName();
             if (backStackCount == 0) {
-                name = span(name, " *");
+                name = span(name, " *"); // 加了*号, 折叠下的
             } else {
-                for (int j = 0; j < backStackCount; j++) {
+                for (int j = 0; j < backStackCount; j++) { // 每一个Fragment下的子Fragment
                     FragmentManager.BackStackEntry entry = fragment.getFragmentManager().getBackStackEntryAt(j);
                     if ((entry.getName() != null && entry.getName().equals(fragment.getTag()))
                             || (entry.getName() == null && fragment.getTag() == null)) {
@@ -212,7 +224,7 @@ public class DebugStackDelegate implements SensorEventListener {
             }
 
             if (fragment instanceof ISupportFragment && ((ISupportFragment)fragment).isSupportVisible()) {
-                name = span(name, " ☀");
+                name = span(name, " ☀"); // 显示了
             }
 
             fragmentRecords.add(new DebugFragmentRecord(name, getChildFragmentRecords(fragment)));

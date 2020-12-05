@@ -60,6 +60,7 @@ public class SupportFragmentDelegate {
     private boolean mRootViewClickable;
 
     public SupportFragmentDelegate(ISupportFragment support) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (!(support instanceof Fragment))
             throw new RuntimeException("Must extends Fragment");
         this.mSupportF = support;
@@ -71,6 +72,8 @@ public class SupportFragmentDelegate {
      * 额外的事务：自定义Tag，添加SharedElement动画，操作非回退栈Fragment
      */
     public ExtraTransaction extraTransaction() {
+        if(BuildConfig.DEBUG) F.m(getClass());
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mTransactionDelegate == null)
             throw new RuntimeException(mFragment.getClass().getSimpleName() + " not attach!");
 
@@ -78,6 +81,7 @@ public class SupportFragmentDelegate {
     }
 
     public void onAttach() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         FragmentActivity activity = mFragment.getActivity();
         if (activity instanceof ISupportActivity) {
             this.mSupportA = (ISupportActivity) activity;
@@ -93,6 +97,7 @@ public class SupportFragmentDelegate {
     }
 
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         getVisibleDelegate().onCreate(savedInstanceState);
 
         Bundle bundle = mFragment.getArguments();
@@ -147,6 +152,7 @@ public class SupportFragmentDelegate {
     }
 
     public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if ((mSupportA.getSupportDelegate().mPopMultipleNoAnim || mLockAnim)) {
             if (transit == FragmentTransaction.TRANSIT_FRAGMENT_CLOSE && enter) {
                 return mAnimHelper.getNoneAnimFixed();
@@ -182,6 +188,7 @@ public class SupportFragmentDelegate {
     }
 
     public void onSaveInstanceState(Bundle outState) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         getVisibleDelegate().onSaveInstanceState(outState);
         outState.putParcelable(TransactionDelegate.FRAGMENTATION_STATE_SAVE_ANIMATOR, mFragmentAnimator);
         outState.putBoolean(TransactionDelegate.FRAGMENTATION_STATE_SAVE_IS_HIDDEN, mFragment.isHidden());
@@ -189,6 +196,7 @@ public class SupportFragmentDelegate {
     }
 
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         getVisibleDelegate().onActivityCreated(savedInstanceState);
 
         View view = mFragment.getView();
@@ -215,28 +223,34 @@ public class SupportFragmentDelegate {
     }
 
     public void onResume() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         getVisibleDelegate().onResume();
     }
 
     public void onPause() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         getVisibleDelegate().onPause();
     }
 
     public void onDestroyView() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mSupportA.getSupportDelegate().mFragmentClickable = true;
         getVisibleDelegate().onDestroyView();
         getHandler().removeCallbacks(mNotifyEnterAnimEndRunnable);
     }
 
     public void onDestroy() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.handleResultRecord(mFragment);
     }
 
     public void onHiddenChanged(boolean hidden) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         getVisibleDelegate().onHiddenChanged(hidden);
     }
 
     public void setUserVisibleHint(boolean isVisibleToUser) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         getVisibleDelegate().setUserVisibleHint(isVisibleToUser);
     }
 
@@ -248,6 +262,7 @@ public class SupportFragmentDelegate {
      * 前面的事务全部执行后 执行该Action
      */
     public void post(final Runnable runnable) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.post(runnable);
     }
 
@@ -256,6 +271,7 @@ public class SupportFragmentDelegate {
      * 入栈动画 结束时,回调
      */
     public void onEnterAnimationEnd(Bundle savedInstanceState) {
+        if(BuildConfig.DEBUG) F.m(getClass());
     }
 
     /**
@@ -264,6 +280,7 @@ public class SupportFragmentDelegate {
      * 同级下的 懒加载 ＋ ViewPager下的懒加载  的结合回调方法
      */
     public void onLazyInitView(@Nullable Bundle savedInstanceState) {
+        if(BuildConfig.DEBUG) F.m(getClass());
     }
 
     /**
@@ -274,6 +291,7 @@ public class SupportFragmentDelegate {
      * Is the combination of  [onHiddenChanged() + onResume()/onPause() + setUserVisibleHint()]
      */
     public void onSupportVisible() {
+        if(BuildConfig.DEBUG) F.m(getClass());
     }
 
     /**
@@ -282,12 +300,14 @@ public class SupportFragmentDelegate {
      * Is the combination of  [onHiddenChanged() + onResume()/onPause() + setUserVisibleHint()]
      */
     public void onSupportInvisible() {
+        if(BuildConfig.DEBUG) F.m(getClass());
     }
 
     /**
      * Return true if the fragment has been supportVisible.
      */
     final public boolean isSupportVisible() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         return getVisibleDelegate().isSupportVisible();
     }
 
@@ -296,6 +316,7 @@ public class SupportFragmentDelegate {
      * 设定当前Fragmemt动画,优先级比在ISupportActivity里高
      */
     public FragmentAnimator onCreateFragmentAnimator() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         return mSupportA.getFragmentAnimator();
     }
 
@@ -305,6 +326,7 @@ public class SupportFragmentDelegate {
      * @return FragmentAnimator
      */
     public FragmentAnimator getFragmentAnimator() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mSupportA == null)
             throw new RuntimeException("Fragment has not been attached to Activity!");
 
@@ -321,6 +343,7 @@ public class SupportFragmentDelegate {
      * Set the fragment animation.
      */
     public void setFragmentAnimator(FragmentAnimator fragmentAnimator) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         this.mFragmentAnimator = fragmentAnimator;
         if (mAnimHelper != null) {
             mAnimHelper.notifyChanged(fragmentAnimator);
@@ -336,6 +359,7 @@ public class SupportFragmentDelegate {
      * @see #startForResult(ISupportFragment, int)
      */
     public void setFragmentResult(int resultCode, Bundle bundle) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         Bundle args = mFragment.getArguments();
         if (args == null || !args.containsKey(TransactionDelegate.FRAGMENTATION_ARG_RESULT_RECORD)) {
             return;
@@ -356,6 +380,7 @@ public class SupportFragmentDelegate {
      * @see #startForResult(ISupportFragment, int)
      */
     public void onFragmentResult(int requestCode, int resultCode, Bundle data) {
+        if(BuildConfig.DEBUG) F.m(getClass());
     }
 
     /**
@@ -368,6 +393,7 @@ public class SupportFragmentDelegate {
      * @see #start(ISupportFragment, int)
      */
     public void onNewBundle(Bundle args) {
+        if(BuildConfig.DEBUG) F.m(getClass());
     }
 
     /**
@@ -376,6 +402,7 @@ public class SupportFragmentDelegate {
      * @see #start(ISupportFragment, int)
      */
     public void putNewBundle(Bundle newBundle) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         this.mNewBundle = newBundle;
     }
 
@@ -385,6 +412,7 @@ public class SupportFragmentDelegate {
      * @return false则继续向上传递, true则消费掉该事件
      */
     public boolean onBackPressedSupport() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         return false;
     }
 
@@ -394,6 +422,7 @@ public class SupportFragmentDelegate {
      * 隐藏软键盘
      */
     public void hideSoftInput() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         Activity activity = mFragment.getActivity();
         if (activity == null) return;
         View view = activity.getWindow().getDecorView();
@@ -404,6 +433,7 @@ public class SupportFragmentDelegate {
      * 显示软键盘,调用该方法后,会在onPause时自动隐藏软键盘
      */
     public void showSoftInput(View view) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         SupportHelper.showSoftInput(view);
     }
 
@@ -412,10 +442,12 @@ public class SupportFragmentDelegate {
      * 加载根Fragment, 即Activity内的第一个Fragment 或 Fragment内的第一个子Fragment
      */
     public void loadRootFragment(int containerId, ISupportFragment toFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         loadRootFragment(containerId, toFragment, true, false);
     }
 
     public void loadRootFragment(int containerId, ISupportFragment toFragment, boolean addToBackStack, boolean allowAnim) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.loadRootTransaction(getChildFragmentManager(), containerId, toFragment, addToBackStack, allowAnim);
     }
 
@@ -423,6 +455,7 @@ public class SupportFragmentDelegate {
      * 加载多个同级根Fragment,类似Wechat, QQ主页的场景
      */
     public void loadMultipleRootFragment(int containerId, int showPosition, ISupportFragment... toFragments) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.loadMultipleRootTransaction(getChildFragmentManager(), containerId, showPosition, toFragments);
     }
 
@@ -433,6 +466,7 @@ public class SupportFragmentDelegate {
      * 建议使用更明确的{@link #showHideFragment(ISupportFragment, ISupportFragment)}
      */
     public void showHideFragment(ISupportFragment showFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         showHideFragment(showFragment, null);
     }
 
@@ -440,10 +474,12 @@ public class SupportFragmentDelegate {
      * show一个Fragment,hide一个Fragment ; 主要用于类似微信主页那种 切换tab的情况
      */
     public void showHideFragment(ISupportFragment showFragment, ISupportFragment hideFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.showHideFragment(getChildFragmentManager(), showFragment, hideFragment);
     }
 
     public void start(ISupportFragment toFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         start(toFragment, ISupportFragment.STANDARD);
     }
 
@@ -451,6 +487,7 @@ public class SupportFragmentDelegate {
      * @param launchMode Similar to Activity's LaunchMode.
      */
     public void start(final ISupportFragment toFragment, @ISupportFragment.LaunchMode int launchMode) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.dispatchStartTransaction(mFragment.getFragmentManager(), mSupportF, toFragment, 0, launchMode, TransactionDelegate.TYPE_ADD);
     }
 
@@ -458,6 +495,7 @@ public class SupportFragmentDelegate {
      * Launch an fragment for which you would like a result when it poped.
      */
     public void startForResult(ISupportFragment toFragment, int requestCode) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.dispatchStartTransaction(mFragment.getFragmentManager(), mSupportF, toFragment, requestCode, ISupportFragment.STANDARD, TransactionDelegate.TYPE_ADD_RESULT);
     }
 
@@ -465,38 +503,47 @@ public class SupportFragmentDelegate {
      * Start the target Fragment and pop itself
      */
     public void startWithPop(ISupportFragment toFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.startWithPop(mFragment.getFragmentManager(), mSupportF, toFragment);
     }
 
     public void startWithPopTo(ISupportFragment toFragment, Class<?> targetFragmentClass, boolean includeTargetFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.startWithPopTo(mFragment.getFragmentManager(), mSupportF, toFragment, targetFragmentClass.getName(), includeTargetFragment);
     }
 
     public void replaceFragment(ISupportFragment toFragment, boolean addToBackStack) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.dispatchStartTransaction(mFragment.getFragmentManager(), mSupportF, toFragment, 0, ISupportFragment.STANDARD, addToBackStack ? TransactionDelegate.TYPE_REPLACE : TransactionDelegate.TYPE_REPLACE_DONT_BACK);
     }
 
     public void startChild(ISupportFragment toFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         startChild(toFragment, ISupportFragment.STANDARD);
     }
 
     public void startChild(final ISupportFragment toFragment, @ISupportFragment.LaunchMode int launchMode) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.dispatchStartTransaction(getChildFragmentManager(), getTopFragment(), toFragment, 0, launchMode, TransactionDelegate.TYPE_ADD);
     }
 
     public void startChildForResult(ISupportFragment toFragment, int requestCode) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.dispatchStartTransaction(getChildFragmentManager(), getTopFragment(), toFragment, requestCode, ISupportFragment.STANDARD, TransactionDelegate.TYPE_ADD_RESULT);
     }
 
     public void startChildWithPop(ISupportFragment toFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.startWithPop(getChildFragmentManager(), getTopFragment(), toFragment);
     }
 
     public void replaceChildFragment(ISupportFragment toFragment, boolean addToBackStack) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.dispatchStartTransaction(getChildFragmentManager(), getTopFragment(), toFragment, 0, ISupportFragment.STANDARD, addToBackStack ? TransactionDelegate.TYPE_REPLACE : TransactionDelegate.TYPE_REPLACE_DONT_BACK);
     }
 
     public void pop() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.pop(mFragment.getFragmentManager());
     }
 
@@ -504,6 +551,7 @@ public class SupportFragmentDelegate {
      * Pop the child fragment.
      */
     public void popChild() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.pop(getChildFragmentManager());
     }
 
@@ -517,6 +565,7 @@ public class SupportFragmentDelegate {
      * @param includeTargetFragment 是否包含该fragment
      */
     public void popTo(Class<?> targetFragmentClass, boolean includeTargetFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         popTo(targetFragmentClass, includeTargetFragment, null);
     }
 
@@ -525,38 +574,47 @@ public class SupportFragmentDelegate {
      * 如果你想在出栈后, 立刻进行FragmentTransaction操作，请使用该方法
      */
     public void popTo(Class<?> targetFragmentClass, boolean includeTargetFragment, Runnable afterPopTransactionRunnable) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         popTo(targetFragmentClass, includeTargetFragment, afterPopTransactionRunnable, TransactionDelegate.DEFAULT_POPTO_ANIM);
     }
 
     public void popTo(Class<?> targetFragmentClass, boolean includeTargetFragment, Runnable afterPopTransactionRunnable, int popAnim) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.popTo(targetFragmentClass.getName(), includeTargetFragment, afterPopTransactionRunnable, mFragment.getFragmentManager(), popAnim);
     }
 
     public void popToChild(Class<?> targetFragmentClass, boolean includeTargetFragment) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         popToChild(targetFragmentClass, includeTargetFragment, null);
     }
 
     public void popToChild(Class<?> targetFragmentClass, boolean includeTargetFragment, Runnable afterPopTransactionRunnable) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         popToChild(targetFragmentClass, includeTargetFragment, afterPopTransactionRunnable, TransactionDelegate.DEFAULT_POPTO_ANIM);
     }
 
     public void popToChild(Class<?> targetFragmentClass, boolean includeTargetFragment, Runnable afterPopTransactionRunnable, int popAnim) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.popTo(targetFragmentClass.getName(), includeTargetFragment, afterPopTransactionRunnable, getChildFragmentManager(), popAnim);
     }
 
     public void popQuiet() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         mTransactionDelegate.popQuiet(mFragment.getFragmentManager(), mFragment);
     }
 
     private FragmentManager getChildFragmentManager() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         return mFragment.getChildFragmentManager();
     }
 
     private ISupportFragment getTopFragment() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         return SupportHelper.getTopFragment(getChildFragmentManager());
     }
 
     private void fixAnimationListener(Animation enterAnim) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         // AnimationListener is not reliable.
         getHandler().postDelayed(mNotifyEnterAnimEndRunnable, enterAnim.getDuration());
         mSupportA.getSupportDelegate().mFragmentClickable = true;
@@ -575,6 +633,7 @@ public class SupportFragmentDelegate {
     private Runnable mNotifyEnterAnimEndRunnable = new Runnable() {
         @Override
         public void run() {
+            if(BuildConfig.DEBUG) F.m(getClass());
             if (mFragment == null) return;
             mSupportF.onEnterAnimationEnd(mSaveInstanceState);
 
@@ -597,10 +656,12 @@ public class SupportFragmentDelegate {
     };
 
     private void compatSharedElements() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         notifyEnterAnimEnd();
     }
 
     public void setBackground(View view) {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if ((mFragment.getTag() != null && mFragment.getTag().startsWith("android:switcher:")) ||
                 mRootStatus != STATUS_UN_ROOT ||
                 view.getBackground() != null) {
@@ -617,6 +678,7 @@ public class SupportFragmentDelegate {
     }
 
     private int getWindowBackground() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         TypedArray a = _mActivity.getTheme().obtainStyledAttributes(new int[]{
                 android.R.attr.windowBackground
         });
@@ -626,11 +688,13 @@ public class SupportFragmentDelegate {
     }
 
     private void notifyEnterAnimEnd() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         getHandler().post(mNotifyEnterAnimEndRunnable);
         mSupportA.getSupportDelegate().mFragmentClickable = true;
     }
 
     private Handler getHandler() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mHandler == null) {
             mHandler = new Handler(Looper.getMainLooper());
         }
@@ -638,6 +702,7 @@ public class SupportFragmentDelegate {
     }
 
     public VisibleDelegate getVisibleDelegate() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mVisibleDelegate == null) {
             mVisibleDelegate = new VisibleDelegate(mSupportF);
         }
@@ -645,10 +710,12 @@ public class SupportFragmentDelegate {
     }
 
     public FragmentActivity getActivity() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         return _mActivity;
     }
 
     private Animation getEnterAnim() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mCustomEnterAnim == Integer.MIN_VALUE) {
             if (mAnimHelper != null && mAnimHelper.enterAnim != null) {
                 return mAnimHelper.enterAnim;
@@ -664,6 +731,7 @@ public class SupportFragmentDelegate {
     }
 
     private long getEnterAnimDuration() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         Animation enter = getEnterAnim();
         if (enter != null) {
             return enter.getDuration();
@@ -672,6 +740,7 @@ public class SupportFragmentDelegate {
     }
 
     public long getExitAnimDuration() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mCustomExitAnim == Integer.MIN_VALUE) {
             if (mAnimHelper != null && mAnimHelper.exitAnim != null) {
                 return mAnimHelper.exitAnim.getDuration();
@@ -688,6 +757,7 @@ public class SupportFragmentDelegate {
     }
 
     private long getPopExitAnimDuration() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mCustomPopExitAnim == Integer.MIN_VALUE) {
             if (mAnimHelper != null && mAnimHelper.popExitAnim != null) {
                 return mAnimHelper.popExitAnim.getDuration();
@@ -705,6 +775,7 @@ public class SupportFragmentDelegate {
 
     @Nullable
     Animation getExitAnim() {
+        if(BuildConfig.DEBUG) F.m(getClass());
         if (mCustomExitAnim == Integer.MIN_VALUE) {
             if (mAnimHelper != null && mAnimHelper.exitAnim != null) {
                 return mAnimHelper.exitAnim;
